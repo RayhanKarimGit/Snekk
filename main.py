@@ -11,7 +11,7 @@ gridSize = 20
 speed = 2
 
 snakeColour = (255,255,255)
-appleColour = (210, 43, 43)
+appleColour = (210,43,43)
 
 bodyWidth = 40
 bodyLength = 40;
@@ -98,6 +98,18 @@ class Body(pygame.sprite.Sprite):
     self.direction = direction
     self.image = self.giveImage()
 
+  #returns coordinates based on the grid of the tiles on the map
+  def gridCoord(self,position):
+    x = int(self.rect.x / 32)
+    y = int(self.rect.y / 32)
+    if position == 'x':
+      return x
+    elif position == 'y':
+      return y
+    else:
+      return 0
+      print("gridCoord() Invalid position: returned 0")
+
 class Head(Body):
 
   def giveImage(self):
@@ -135,6 +147,10 @@ snake = (Head('D',10,9),Body('W',10,10),Tail('W',10,11))
 
 def updateSnake():
 
+  canUpdate = False #boolean to keep track when the snake can update position
+  nextDirection = 'W'
+  updatePos = 0
+
   for i in range(len(snake)):
     snake[i].draw()
     snake[i].move()
@@ -143,15 +159,28 @@ def updateSnake():
   for event in events:
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_w:
-          snake[0].updateDirection('W')
+          canUpdate = True
+          nextDirection = 'W'
+          updatePos = snake[0].gridCoord('y')
         if event.key == pygame.K_a:
-          snake[0].updateDirection('A')
+          canUpdate = True
+          nextDirection = 'A'
+          updatePos = snake[0].gridCoord('x')
         if event.key == pygame.K_s:
-          snake[0].updateDirection('S')
+          canUpdate = True
+          nextDirection = 'S'
+          updatePos = snake[0].gridCoord('y')
         if event.key == pygame.K_d:
-          snake[0].updateDirection('D')
+          canUpdate = True
+          nextDirection = 'D'
+          updatePos = snake[0].gridCoord('x')
+
+  if (canUpdate and updatePos < snake[0].gridCoord('x')):
+    snake[0].updateDirection(nextDirection)
+    canUpdate = False
 
 Game = pygame.display.set_mode((32*gridSize, 32*gridSize)) #Width and Height of Window
+
 while True:
    for event in pygame.event.get():
        if event.type == QUIT:
