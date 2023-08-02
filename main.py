@@ -5,9 +5,9 @@ from pygame import *
 import random
 
 pygame.display.set_caption("            SNAKE")  # caption at the top of the window
-speed = pygame.time.Clock()
+FPS = pygame.time.Clock()
 gridSize = 20
-speed = 2
+speed = 1
 
 snakeColour = (255, 255, 255)
 appleColour = (210, 43, 43)
@@ -81,7 +81,7 @@ class Body(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (x * 32, y * 32)
 
-    def move(self):
+    def update(self):
 
         if self.direction == 'W':
             self.rect.move_ip(0, -speed)
@@ -95,25 +95,11 @@ class Body(pygame.sprite.Sprite):
         if self.direction == 'D':
             self.rect.move_ip(speed, 0)
 
-    def draw(self):
         Game.blit(self.image, self.rect)
 
     def updateDirection(self, direction):
         self.direction = direction
         self.image = self.giveImage()
-
-    # returns coordinates based on the grid of the tiles on the map
-    def gridCoord(self, position):
-        x = int(self.rect.x / 32)
-        y = int(self.rect.y / 32)
-        if position == 'x':
-            return x
-        elif position == 'y':
-            return y
-        else:
-            print("gridCoord() Invalid position: returned 0")
-            return 0
-
 
 class Head(Body):
 
@@ -153,37 +139,21 @@ snake = (Head('D', 10, 9), Body('W', 10, 10), Tail('W', 10, 11))
 
 
 def updateSnake():
-    canUpdate = False  # boolean to keep track when the snake can update position
-    nextDirection = 'W'
-    updatePos = 0
 
     for i in range(len(snake)):
-        snake[i].draw()
-        snake[i].move()
+        snake[i].update()
 
     events = pygame.event.get()
     for event in events:
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYUP:
             if event.key == pygame.K_w:
-                canUpdate = True
-                nextDirection = 'W'
-                updatePos = snake[0].gridCoord('y')
+                snake[0].updateDirection('W')
             if event.key == pygame.K_a:
-                canUpdate = True
-                nextDirection = 'A'
-                updatePos = snake[0].gridCoord('x')
+                snake[0].updateDirection('A')
             if event.key == pygame.K_s:
-                canUpdate = True
-                nextDirection = 'S'
-                updatePos = snake[0].gridCoord('y')
+                snake[0].updateDirection('S')
             if event.key == pygame.K_d:
-                canUpdate = True
-                nextDirection = 'D'
-                updatePos = snake[0].gridCoord('x')
-
-    if canUpdate and updatePos < snake[0].gridCoord('x'):
-        snake[0].updateDirection(nextDirection)
-        canUpdate = False
+                snake[0].updateDirection('D')
 
 
 Game = pygame.display.set_mode((32 * gridSize, 32 * gridSize))  # Width and Height of Window
@@ -196,4 +166,4 @@ while True:
     drawBoard()
     updateSnake()
     pygame.display.update()
-    speed.tick(2)  # snake position updates every half second (2 fps)
+    FPS.tick(60)  # sets a framerate limit to 30
