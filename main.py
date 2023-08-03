@@ -53,32 +53,67 @@ def drawBoard():
 
 
 # Body Class
+class Body(pygame.Rect):
+
+    def __init__(self,x,y,l,w):
+        super().__init__(x,y,l,w)
+        self.changing = False #boolean to keep track whether this body segment is increasing or decreasing in size
+
+
 class Snake(pygame.sprite.Sprite):
 
     def __init__(self, direction, x, y):
         super().__init__()
         self.direction = direction
         self.length = 1 #snake will be just one body length long initially
-        self.rect = [] #will need a list of rectangles for when the snake changes positions
-        self.x = x
-        self.y = y
-        self.rect.append(pygame.Rect(x*32+4,y*32-4,24,24))
+        self.body = [] #will need a list of rectangles for when the snake changes positions
+        self.body.append(Body(x*32+4,y*32-4,24,24))
 
     def update(self):
 
-        if self.direction == 'W':
-            self.rect[0].move_ip(0, -speed)
+        for i in range(len(self.body)):
 
-        if self.direction == 'A':
-            self.rect[0].move_ip(-speed, 0)
+            if self.direction == 'W':
 
-        if self.direction == 'S':
-            self.rect[0].move_ip(0, speed)
+                if not self.body[i].changing:
+                    self.body[i].move_ip(0, -speed)
+                elif self.body[i].height > self.length*32-8:
+                    self.body[i].changing = False
+                    self.body[i].height = self.length*32-8
+                else:
+                    self.body[i].height += 1
 
-        if self.direction == 'D':
-            self.rect[0].move_ip(speed, 0)
+            if self.direction == 'A':
 
-        pygame.draw.rect(Game, (255,255,255), self.rect[0])
+                if not self.body[i].changing:
+                    self.body[i].move_ip(-speed, 0)
+                elif self.body[i].width > self.length*32-8:
+                    self.body[i].changing = False
+                    self.body[i].width = self.length * 32 - 8
+                else:
+                    self.body[i].width += 1
+
+            if self.direction == 'S':
+
+                if not self.body[i].changing:
+                    self.body[i].move_ip(0, speed)
+                elif self.body[i].height > self.length*32-8:
+                    self.body[i].changing = False
+                    self.body[i].height = self.length * 32 - 8
+                else:
+                    self.body[i].height += 1
+
+            if self.direction == 'D':
+
+                if not self.body[i].changing:
+                    self.body[0].move_ip(speed, 0)
+                elif self.body[i].width > self.length*32-8:
+                    self.body[i].changing = False
+                    self.body[i].width = self.length * 32 - 8
+                else:
+                    self.body[i].width += 1
+
+            pygame.draw.rect(Game, (255, 255, 255), self.body[i])
 
     def updateDirection(self, direction):
         self.direction = direction
@@ -88,31 +123,25 @@ pygame.init()
 
 snake = Snake('W',10,10)
 
-
-def updateSnake():
-
-
-    snake.update()
-
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_w:
-                snake.updateDirection('W')
-            if event.key == pygame.K_a:
-                snake.updateDirection('A')
-            if event.key == pygame.K_s:
-                snake.updateDirection('S')
-            if event.key == pygame.K_d:
-                snake.updateDirection('D')
-
-
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_w:
+                snake.updateDirection('W')
+                snake.body[0].changing = True
+            if event.key == pygame.K_a:
+                snake.updateDirection('A')
+                snake.body[0].changing = True
+            if event.key == pygame.K_s:
+                snake.updateDirection('S')
+                snake.body[0].changing = True
+            if event.key == pygame.K_d:
+                snake.updateDirection('D')
+                snake.body[0].changing = True
     drawBoard()
-    updateSnake()
+    snake.update()
     pygame.display.update()
     FPS.tick(60)  # sets a framerate limit to 30
