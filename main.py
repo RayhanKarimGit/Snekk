@@ -55,56 +55,100 @@ def drawBoard():
 # Body Class
 class Body(pygame.Rect):
 
-    def __init__(self,x,y,l,w):
+    def __init__(self,x,y,l,w,d):
         super().__init__(x,y,l,w)
-        self.changing = True #boolean to keep track whether this body segment is increasing or decreasing in size
+        self.direction = d
 
 
 class Snake(pygame.sprite.Sprite):
 
     def __init__(self, direction, x, y):
         super().__init__()
-        self.direction = direction
-        self.length = 1 #snake will be just one body length long initially
+        self.length = 2 #snake will be just one body length long initially
         self.body = [] #will need a list of rectangles for when the snake changes positions
-        self.body.append(Body(x*32+4,y*32-4,24,24))
+        self.body.append(Body(x*32+4,y*32-4,24,24,direction))
 
     def update(self):
 
         for i in range(len(self.body)):
 
-            if self.direction == 'W':
+            if i == 0 or i == len(self.body) - 1:
 
-                if not self.body[i].changing:
-                    self.body[i].move_ip(0, -speed)
-                else:
-                    self.body[i].height += 1
+                if self.body[i].direction == 'W':
 
-            if self.direction == 'A':
+                    if i == 0:
+                        self.body[i].height += speed
+                        self.body[i].move_ip(0,-speed)
+                    else:
+                        self.body[i].height -= speed
 
-                if not self.body[i].changing:
-                    self.body[i].move_ip(-speed, 0)
-                else:
-                    self.body[i].width += 1
+                    if self.body[i].height > self.length * 2-8:
+                        self.body[i].height = self.length * 32-8
 
-            if self.direction == 'S':
+                    if self.body[i].height < 24:
+                        self.body.pop(i)
 
-                if not self.body[i].changing:
-                    self.body[i].move_ip(0, speed)
-                else:
-                    self.body[i].height += 1
+                if self.body[i].direction == 'A':
 
-            if self.direction == 'D':
+                    if i == 0:
+                        self.body[i].width += speed
+                        self.body[i].move_ip(-speed,0)
+                    else:
+                        self.body[i].width -= speed
 
-                if not self.body[i].changing:
-                    self.body[0].move_ip(speed, 0)
-                else:
-                    self.body[i].width += 1
+                    if self.body[i].width > self.length * 32 - 8:
+                        self.body[i].width = self.length * 32 - 8
+
+                    if self.body[i].width < 24:
+                        self.body.pop(i)
+
+                if self.body[i].direction == 'S':
+
+                    if i == 0:
+                        self.body[i].height += speed
+                    else:
+                        self.body[i].height -= speed
+                        self.body[i].move_ip(0,speed)
+
+                    if self.body[i].height > self.length * 32 - 8:
+                        self.body[i].height = self.length * 32 - 8
+
+                    if self.body[i].height < 24:
+                        self.body.pop(i)
+
+                if self.body[i].direction == 'D':
+
+                    if i == 0:
+                        self.body[i].width += speed
+                        self.body[i].move_ip(speed,0)
+                    else:
+                        self.body[i].width -= speed
+
+                    if self.body[i].width > self.length * 32 - 8:
+                        self.body[i].width = self.length * 32 - 8
+
+                    if self.body[i].width < 24:
+                        self.body.pop(i)
 
             pygame.draw.rect(Game, (255, 255, 255), self.body[i])
 
+    # updates the direction for the head of the snake
     def updateDirection(self, direction):
-        self.direction = direction
+        bodyDir = self.body[0].direction
+        self.body[0].direction = direction
+
+        # we are creating a copy of the previous rectangle for when the snake changes direction
+        if not len(self.body) < 2:
+
+            index = len(self.body) -1
+            x = body[index].x
+            y = body[index].y
+            width = body[index].width
+            length = body[index].length
+            self.body.append(Body(x, y, width, length, bodyDir))
+
+        self.body[0].height = 24
+        self.body[0].length = 24
 
 
 pygame.init()
@@ -119,16 +163,12 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
                 snake.updateDirection('W')
-                snake.body[0].changing = True
             if event.key == pygame.K_a:
                 snake.updateDirection('A')
-                snake.body[0].changing = True
             if event.key == pygame.K_s:
                 snake.updateDirection('S')
-                snake.body[0].changing = True
             if event.key == pygame.K_d:
                 snake.updateDirection('D')
-                snake.body[0].changing = True
     drawBoard()
     snake.update()
     pygame.display.update()
