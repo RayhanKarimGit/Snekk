@@ -57,7 +57,7 @@ class Body(pygame.Rect):
 
     def __init__(self,x,y,l,w):
         super().__init__(x,y,l,w)
-        self.changing = False #boolean to keep track whether this body segment is increasing or decreasing in size
+        self.changing = True #boolean to keep track whether this body segment is increasing or decreasing in size
 
 
 class Snake(pygame.sprite.Sprite):
@@ -77,9 +77,6 @@ class Snake(pygame.sprite.Sprite):
 
                 if not self.body[i].changing:
                     self.body[i].move_ip(0, -speed)
-                elif self.body[i].height > self.length*32-8:
-                    self.body[i].changing = False
-                    self.body[i].height = self.length*32-8
                 else:
                     self.body[i].height += 1
 
@@ -87,9 +84,6 @@ class Snake(pygame.sprite.Sprite):
 
                 if not self.body[i].changing:
                     self.body[i].move_ip(-speed, 0)
-                elif self.body[i].width > self.length*32-8:
-                    self.body[i].changing = False
-                    self.body[i].width = self.length * 32 - 8
                 else:
                     self.body[i].width += 1
 
@@ -97,9 +91,6 @@ class Snake(pygame.sprite.Sprite):
 
                 if not self.body[i].changing:
                     self.body[i].move_ip(0, speed)
-                elif self.body[i].height > self.length*32-8:
-                    self.body[i].changing = False
-                    self.body[i].height = self.length * 32 - 8
                 else:
                     self.body[i].height += 1
 
@@ -107,9 +98,6 @@ class Snake(pygame.sprite.Sprite):
 
                 if not self.body[i].changing:
                     self.body[0].move_ip(speed, 0)
-                elif self.body[i].width > self.length*32-8:
-                    self.body[i].changing = False
-                    self.body[i].width = self.length * 32 - 8
                 else:
                     self.body[i].width += 1
 
