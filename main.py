@@ -84,12 +84,13 @@ class Snake(pygame.sprite.Sprite):
                     else:
                         self.body[i].height -= speed
 
-                    if self.body[i].height > self.length * 2-8:
+                    if self.body[i].height > self.length * 32-8:
                         self.body[i].moving = True
                         self.body[i].height = self.length * 32-8
 
                     if self.body[i].height < 24:
                         self.body.pop(i)
+                        break
 
                 if self.body[i].direction == 'A':
 
@@ -105,6 +106,7 @@ class Snake(pygame.sprite.Sprite):
 
                     if self.body[i].width < 24:
                         self.body.pop(i)
+                        break
 
                 if self.body[i].direction == 'S':
 
@@ -112,7 +114,7 @@ class Snake(pygame.sprite.Sprite):
                         self.body[i].height += speed
                     else:
                         self.body[i].height -= speed
-                        self.body[i].moveing = True
+                        self.body[i].moving = True
 
                     if self.body[i].height > self.length * 32 - 8:
                         self.body[i].moving = True
@@ -120,6 +122,7 @@ class Snake(pygame.sprite.Sprite):
 
                     if self.body[i].height < 24:
                         self.body.pop(i)
+                        break
 
                 if self.body[i].direction == 'D':
 
@@ -135,6 +138,7 @@ class Snake(pygame.sprite.Sprite):
 
                     if self.body[i].width < 24:
                         self.body.pop(i)
+                        break
 
             if self.body[i].moving:
 
@@ -158,17 +162,22 @@ class Snake(pygame.sprite.Sprite):
         self.body[0].direction = direction
 
         # we are creating a copy of the previous rectangle for when the snake changes direction
-        if not len(self.body) < 2:
 
-            index = len(self.body) - 1
-            x = body[index].left
-            y = body[index].top
-            width = body[index].width
-            length = body[index].length
-            self.body.append(Body(x, y, width, length, bodyDir))
+        index = len(self.body) - 1
+        x = self.body[index].left
+        y = self.body[index].top
+        width = self.body[index].width
+        length = self.body[index].height
+        self.body.append(Body(x, y, width, length, bodyDir))
 
         self.body[0].height = 24
-        self.body[0].length = 24
+        self.body[0].width = 24
+
+        origX = self.body[0].left
+        origY = self.body[0].top
+
+        if direction == 'D':
+            self.body.left = origX + 24
 
 
 pygame.init()
@@ -192,4 +201,4 @@ while True:
     drawBoard()
     snake.update()
     pygame.display.update()
-    FPS.tick(60)  # sets a framerate limit to 30
+    FPS.tick(30)  # sets a framerate limit to 30
