@@ -7,7 +7,7 @@ import random
 pygame.display.set_caption("            SNAKE")  # caption at the top of the window
 FPS = pygame.time.Clock()
 gridSize = 20
-speed = 1
+speed = 2
 
 snakeColour = (255, 255, 255)
 appleColour = (210, 43, 43)
@@ -55,8 +55,8 @@ def drawBoard():
 # Body Class
 class Body(pygame.Rect):
 
-    def __init__(self,x,y,l,w,d):
-        super().__init__(x,y,l,w)
+    def __init__(self,x,y,w,h,d):
+        super().__init__(x,y,w,h)
         self.direction = d
         self.moving = False
 
@@ -65,7 +65,7 @@ class Snake(pygame.sprite.Sprite):
 
     def __init__(self, direction, x, y):
         super().__init__()
-        self.length = 2 #snake will be just one body length long initially
+        self.length = 4 #snake will be just one body length long initially
         self.body = [] #will need a list of rectangles for when the snake changes positions
         self.body.append(Body(x*32+4,y*32-4,24,24,direction))
         self.body[0].moving = True
@@ -80,7 +80,6 @@ class Snake(pygame.sprite.Sprite):
 
                     if i == 0:
                         self.body[i].height += speed
-                        self.body[i].moving = True
                     else:
                         self.body[i].height -= speed
 
@@ -96,7 +95,6 @@ class Snake(pygame.sprite.Sprite):
 
                     if i == 0:
                         self.body[i].width += speed
-                        self.body[i].moving = True
                     else:
                         self.body[i].width -= speed
 
@@ -114,7 +112,6 @@ class Snake(pygame.sprite.Sprite):
                         self.body[i].height += speed
                     else:
                         self.body[i].height -= speed
-                        self.body[i].moving = True
 
                     if self.body[i].height > self.length * 32 - 8:
                         self.body[i].moving = True
@@ -130,7 +127,6 @@ class Snake(pygame.sprite.Sprite):
                         self.body[i].width += speed
                     else:
                         self.body[i].width -= speed
-                        self.body[i].moving = True
 
                     if self.body[i].width > self.length * 32 - 8:
                         self.body[i].moving = True
@@ -158,27 +154,21 @@ class Snake(pygame.sprite.Sprite):
 
     # updates the direction for the head of the snake
     def updateDirection(self, direction):
-        bodyDir = self.body[0].direction
+        bodyDir = self.body[len(self.body)-1].direction
         self.body[0].direction = direction
 
         # we are creating a copy of the previous rectangle for when the snake changes direction
 
         index = len(self.body) - 1
-        x = self.body[index].left
-        y = self.body[index].top
         width = self.body[index].width
         length = self.body[index].height
-        self.body.append(Body(x, y, width, length, bodyDir))
+        x = self.body[index].left
+        y = self.body[index].top
+        self.body.append(Body(x,y,width,length,bodyDir))
 
         self.body[0].height = 24
         self.body[0].width = 24
-
-        origX = self.body[0].left
-        origY = self.body[0].top
-
-        if direction == 'D':
-            self.body.left = origX + 24
-
+        self.body[0].moving = False
 
 pygame.init()
 
