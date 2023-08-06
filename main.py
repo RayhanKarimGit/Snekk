@@ -55,120 +55,96 @@ def drawBoard():
 # Body Class
 class Body(pygame.Rect):
 
-    def __init__(self,x,y,w,h,d):
-        super().__init__(x,y,w,h)
+    def __init__(self,x,y,d):
+        super().__init__(x,y,24,24)
         self.direction = d
-        self.moving = False
-
 
 class Snake(pygame.sprite.Sprite):
 
     def __init__(self, direction, x, y):
         super().__init__()
-        self.length = 4 #snake will be just one body length long initially
         self.body = [] #will need a list of rectangles for when the snake changes positions
-        self.body.append(Body(x*32+4,y*32-4,24,24,direction))
-        self.body[0].moving = True
+        self.body.append(Body(x*32+4,y*32-4, direction))
+        self.body.append(Body(x * 32 + 4, y * 32 + 20, direction))
+        self.body.append(Body(x * 32 + 4, y * 32 + 44, direction))
 
     def update(self):
 
         for i in range(len(self.body)):
 
-            if i == 0 or i == len(self.body) - 1:
+            if self.body[i].direction == 'W':
+                self.body[i].move_ip(0,-speed)
 
-                if self.body[i].direction == 'W':
+            if self.body[i].direction == 'A':
+                self.body[i].move_ip(-speed, 0)
 
-                    if i == 0:
-                        self.body[i].height += speed
-                    else:
-                        self.body[i].height -= speed
+            if self.body[i].direction == 'S':
+                self.body[i].move_ip(0, speed)
 
-                    if self.body[i].height > self.length * 32-8:
-                        self.body[i].moving = True
-                        self.body[i].height = self.length * 32-8
+            if self.body[i].direction == 'D':
+                self.body[i].move_ip(speed, 0)
 
-                    if self.body[i].height < 24:
-                        self.body.pop(i)
-                        break
+            if not i == 0:
 
-                if self.body[i].direction == 'A':
+                if self.body[i - 1].direction == 'W' or self.body[i - 1].direction == 'S':
 
-                    if i == 0:
-                        self.body[i].width += speed
-                    else:
-                        self.body[i].width -= speed
+                    if self.body[i].direction == 'A':
 
-                    if self.body[i].width > self.length * 32 - 8:
-                        self.body[i].moving = True
-                        self.body[i].width = self.length * 32 - 8
+                        if self.body[i].left < self.body[i - 1].left:
+                            self.body[i].direction = self.body[i - 1].direction
+                            self.body[i].left = self.body[i - 1].left
+                            fixVertPos()
 
-                    if self.body[i].width < 24:
-                        self.body.pop(i)
-                        break
+                    elif self.body[i].direction == 'D':
 
-                if self.body[i].direction == 'S':
+                        if self.body[i].right > self.body[i - 1].right:
+                            self.body[i].direction = self.body[i - 1].direction
+                            self.body[i].right = self.body[i - 1].right
+                            fixVertPos()
 
-                    if i == 0:
-                        self.body[i].height += speed
-                    else:
-                        self.body[i].height -= speed
+                if self.body[i - 1].direction == 'A' or self.body[i - 1].direction == 'D':
 
-                    if self.body[i].height > self.length * 32 - 8:
-                        self.body[i].moving = True
-                        self.body[i].height = self.length * 32 - 8
+                    if self.body[i].direction == 'S':
 
-                    if self.body[i].height < 24:
-                        self.body.pop(i)
-                        break
+                        if self.body[i].bottom > self.body[i - 1].bottom:
+                            self.body[i].direction = self.body[i - 1].direction
+                            self.body[i].bottom = self.body[i - 1].bottom
+                            fixHorizPos()
 
-                if self.body[i].direction == 'D':
+                    elif self.body[i].direction == 'W':
 
-                    if i == 0:
-                        self.body[i].width += speed
-                    else:
-                        self.body[i].width -= speed
-
-                    if self.body[i].width > self.length * 32 - 8:
-                        self.body[i].moving = True
-                        self.body[i].width = self.length * 32 - 8
-
-                    if self.body[i].width < 24:
-                        self.body.pop(i)
-                        break
-
-            if self.body[i].moving:
-
-                if self.body[i].direction == 'W':
-                    self.body[i].move_ip(0,-speed)
-
-                if self.body[i].direction == 'A':
-                    self.body[i].move_ip(-speed, 0)
-
-                if self.body[i].direction == 'S':
-                    self.body[i].move_ip(0, speed)
-
-                if self.body[i].direction == 'D':
-                    self.body[i].move_ip(speed, 0)
+                        if self.body[i].top < self.body[i - 1].top:
+                            self.body[i].direction = self.body[i - 1].direction
+                            self.body[i].top = self.body[i - 1].top
+                            fixHorizPos()
 
             pygame.draw.rect(Game, (255, 255, 255), self.body[i])
 
+            def fixVertPos():
+                if self.body[i - 1].direction == 'W':
+                    self.body[i].top = self.body[i - 1].top + 24
+
+                if self.body[i - 1].direction == 'S':
+                    self.body[i].bottom = self.body[i - 1].bottom - 24
+
+            def fixHorizPos():
+                if self.body[i - 1].direction == 'A':
+                    self.body[i].left = self.body[i - 1].left + 24
+                if self.body[i - 1].direction == 'D':
+                    self.body[i].right = self.body[i - 1].right - 24
+
+
     # updates the direction for the head of the snake
     def updateDirection(self, direction):
-        bodyDir = self.body[len(self.body)-1].direction
-        self.body[0].direction = direction
+        currentDirection = self.body[0].direction
 
-        # we are creating a copy of the previous rectangle for when the snake changes direction
+        if currentDirection == 'W' or currentDirection == 'S':
+            if direction != 'W' and direction != 'S':
+                self.body[0].direction = direction
 
-        index = len(self.body) - 1
-        width = self.body[index].width
-        length = self.body[index].height
-        x = self.body[index].left
-        y = self.body[index].top
-        self.body.append(Body(x,y,width,length,bodyDir))
-
-        self.body[0].height = 24
-        self.body[0].width = 24
-        self.body[0].moving = False
+        if currentDirection == 'A' or currentDirection == 'D':
+            if direction != 'A' and direction != 'D':
+                self.body[0].direction = direction
 
 pygame.init()
 
