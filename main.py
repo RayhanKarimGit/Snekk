@@ -19,6 +19,9 @@ darkMode = True
 
 Game = pygame.display.set_mode((32 * gridSize, 32 * gridSize))  # Width and Height of Window
 
+pygame.init()
+snakeMove = pygame.mixer.Sound('Sounds/snakeMove.wav')
+
 # method to load a png file based on its name
 def loadImg(fileName):
     return pygame.image.load("assets/" + str(fileName) + ".png")
@@ -141,12 +144,12 @@ class Snake(pygame.sprite.Sprite):
         if currentDirection == 'W' or currentDirection == 'S':
             if direction != 'W' and direction != 'S':
                 self.body[0].direction = direction
+                pygame.mixer.Sound.play(snakeMove)
 
         if currentDirection == 'A' or currentDirection == 'D':
             if direction != 'A' and direction != 'D':
                 self.body[0].direction = direction
-
-pygame.init()
+                pygame.mixer.Sound.play(snakeMove)
 
 snake = Snake('W',10,10)
 
