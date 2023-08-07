@@ -4,16 +4,15 @@ from pygame.locals import *
 from pygame import *
 import random
 
-pygame.display.set_caption("            SNAKE")  # caption at the top of the window
+pygame.display.set_caption("            SNEKK")  # caption at the top of the window
 FPS = pygame.time.Clock()
 gridSize = 20
 speed = 2
 
-snakeColour = (255, 255, 255)
-appleColour = (210, 43, 43)
+snakeColour = (196, 255, 14)
 
 bodyWidth = 40
-bodyLength = 40;
+bodyLength = 40
 
 darkMode = True
 
@@ -121,7 +120,7 @@ class Snake(pygame.sprite.Sprite):
                             self.body[i].top = self.body[i - 1].top
                             fixHorizPos()
 
-            pygame.draw.rect(Game, (255, 255, 255), self.body[i])
+            pygame.draw.rect(Game, snakeColour, self.body[i])
 
             def fixVertPos():
                 if self.body[i - 1].direction == 'W':
