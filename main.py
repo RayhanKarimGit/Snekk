@@ -89,10 +89,13 @@ class Snake(pygame.sprite.Sprite):
     def __init__(self, direction, x, y):
         super().__init__()
         self.body = [] #will need a list of rectangles for when the snake changes positions
-        self.body.append(Body(x*32+4,y*32-4, direction))
+        self.body.append(Body(x * 32 + 4,y * 32 + 4, direction))
         self.body.append(Body(x * 32 + 4, y * 32 + 20, direction))
         self.body.append(Body(x * 32 + 4, y * 32 + 44, direction))
         self.speed = 2 #snake will initially move at 2 pixels per frame
+        self.nextDirection = direction #the direction for the snake to update to
+        self.lastPosX = x * 32 + 4 #last known x coordinate of snake head
+        self.lastPosY = y * 32 + 4 #last known y coordinate of snake head
 
     def update(self):
 
@@ -159,26 +162,45 @@ class Snake(pygame.sprite.Sprite):
                 if self.body[i - 1].direction == 'D':
                     self.body[i].right = self.body[i - 1].right - 24
 
+        currentDirection = self.body[0].direction
+        y = self.body[0].y
+        x = self.body[0].x
+        if currentDirection == 'W':
+            if self.nextDirection != 'W' and self.nextDirection != 'S' and y < self.lastPosY:
+                self.body[0].direction = self.nextDirection
+                self.body[0].y = self.lastPosY #corrects y position
+                pygame.mixer.Sound.play(snakeMove)
+
+        if currentDirection == 'A':
+            if self.nextDirection != 'A' and self.nextDirection != 'D' and x < self.lastPosX:
+                self.body[0].direction = self.nextDirection
+                self.body[0].x = self.lastPosX #corrects x position
+                pygame.mixer.Sound.play(snakeMove)
+
+        if currentDirection == 'S':
+            if self.nextDirection != 'W' and self.nextDirection != 'S' and y > self.lastPosY + 32:
+                self.body[0].direction = self.nextDirection
+                self.body[0].y = self.lastPosY + 32  # corrects y positionself.body[0].y = self.lastPosY #corrects y position
+                pygame.mixer.Sound.play(snakeMove)
+
+        if currentDirection == 'D':
+            if self.nextDirection != 'A' and self.nextDirection != 'D' and x > self.lastPosX + 32:
+                self.body[0].direction = self.nextDirection
+                self.body[0].x = self.lastPosX + 32  # corrects y position
+                pygame.mixer.Sound.play(snakeMove)
+
 
     # updates the direction for the head of the snake
     def updateDirection(self, direction):
-        currentDirection = self.body[0].direction
-
-        if currentDirection == 'W' or currentDirection == 'S':
-            if direction != 'W' and direction != 'S':
-                self.body[0].direction = direction
-                pygame.mixer.Sound.play(snakeMove)
-
-        if currentDirection == 'A' or currentDirection == 'D':
-            if direction != 'A' and direction != 'D':
-                self.body[0].direction = direction
-                pygame.mixer.Sound.play(snakeMove)
+        self.nextDirection = direction
+        self.lastPosX = int((self.body[0].x - 4) / 32) * 32 + 4
+        self.lastPosY = int((self.body[0].y - 4) / 32) * 32 + 4
 
     def checkCollisions(self):
 
         if self.body[0].colliderect(apple.rect):
 
-            maxSpeed = 10
+            maxSpeed = 7
             index = len(self.body) - 1
             x = self.body[index].x
             y = self.body[index].y
@@ -197,7 +219,10 @@ class Snake(pygame.sprite.Sprite):
 
             if self.body[index].direction == 'D':
                 self.body.append(Body(x - 24, y, 'D'))
-            spawnApple()
+
+            x = random.randint(1, 18)
+            y = random.randint(1, 18)
+            apple.spawn(x, y)
 
         for i in range(len(walls)):
 
@@ -207,17 +232,15 @@ class Snake(pygame.sprite.Sprite):
 
         for i in range(len(self.body)):
 
-            if i != 1 and i != 0 and self.body[0].colliderect(self.body[i]):
+            if i != 2 and i != 1 and i != 0 and self.body[0].colliderect(self.body[i]):
                 pygame.mixer.Sound.play(collision)
                 sys.exit()
-def spawnApple():
-    x = random.randint(1,18)
-    y = random.randint(1,18)
-    apple.spawn(x, y)
-
 
 snake = Snake('W',10,10)
-spawnApple()
+x = random.randint(1,18)
+y = random.randint(1,18)
+apple.spawn(x, y)
+
 
 while True:
     for event in pygame.event.get():
