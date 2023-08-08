@@ -11,8 +11,8 @@ speed = 2
 
 snakeColour = (196, 255, 14)
 
-bodyWidth = 40
-bodyLength = 40
+bodyWidth = 24
+bodyLength = 24
 
 darkMode = True
 
@@ -20,6 +20,12 @@ Game = pygame.display.set_mode((32 * gridSize, 32 * gridSize))  # Width and Heig
 
 pygame.init()
 snakeMove = pygame.mixer.Sound('Sounds/snakeMove.wav')
+eatApple = pygame.mixer.Sound('Sounds/eatApple.wav')
+collision = pygame.mixer.Sound('Sounds/collision.mp3')
+
+# these are the walls the snake can collide with
+walls = (pygame.rect.Rect(0, 0, 32 * gridSize, 32), pygame.rect.Rect(32 * gridSize - 32, 0, 32, 32 * gridSize),
+         pygame.rect.Rect(0, 0, 32, 32 * gridSize), pygame.rect.Rect(0, 32 * gridSize - 32, 32 * gridSize, 32))
 
 # method to load a png file based on its name
 def loadImg(fileName):
@@ -53,13 +59,30 @@ def drawBoard():
         for j in range(gridSize - 2):
             displayTile(darkFloor, i + 1, j + 1)
 
+    apple.draw()
+
+#Objects Class
+class Object(pygame.sprite.Sprite):
+    def __init__(self, img):
+        super().__init__()
+        self.image = pygame.image.load('assets/'+img)
+        self.rect = self.image.get_rect()
+
+    def spawn(self, x, y):
+        self.rect.x = x * 32 + 4
+        self.rect.y = y * 32 + 4
+
+    def draw(self):
+        Game.blit(self.image, self.rect)
 
 # Body Class
 class Body(pygame.Rect):
 
     def __init__(self,x,y,d):
-        super().__init__(x,y,24,24)
+        super().__init__(x ,y ,bodyWidth , bodyLength)
         self.direction = d
+
+apple = Object('apple.png')
 
 class Snake(pygame.sprite.Sprite):
 
@@ -69,22 +92,23 @@ class Snake(pygame.sprite.Sprite):
         self.body.append(Body(x*32+4,y*32-4, direction))
         self.body.append(Body(x * 32 + 4, y * 32 + 20, direction))
         self.body.append(Body(x * 32 + 4, y * 32 + 44, direction))
+        self.speed = 2 #snake will initially move at 2 pixels per frame
 
     def update(self):
 
         for i in range(len(self.body)):
 
             if self.body[i].direction == 'W':
-                self.body[i].move_ip(0,-speed)
+                self.body[i].move_ip(0,-self.speed)
 
             if self.body[i].direction == 'A':
-                self.body[i].move_ip(-speed, 0)
+                self.body[i].move_ip(-self.speed, 0)
 
             if self.body[i].direction == 'S':
-                self.body[i].move_ip(0, speed)
+                self.body[i].move_ip(0, self.speed)
 
             if self.body[i].direction == 'D':
-                self.body[i].move_ip(speed, 0)
+                self.body[i].move_ip(self.speed, 0)
 
             if not i == 0:
 
@@ -150,7 +174,50 @@ class Snake(pygame.sprite.Sprite):
                 self.body[0].direction = direction
                 pygame.mixer.Sound.play(snakeMove)
 
+    def checkCollisions(self):
+
+        if self.body[0].colliderect(apple.rect):
+
+            maxSpeed = 10
+            index = len(self.body) - 1
+            x = self.body[index].x
+            y = self.body[index].y
+            pygame.mixer.Sound.play(eatApple)
+            if self.speed < maxSpeed:
+                self.speed += 1
+
+            if self.body[index].direction == 'W':
+                self.body.append(Body(x, y + 24, 'W'))
+
+            if self.body[index].direction == 'A':
+                self.body.append(Body(x + 24, y, 'A'))
+
+            if self.body[index].direction == 'S':
+                self.body.append(Body(x, y - 24, 'S'))
+
+            if self.body[index].direction == 'D':
+                self.body.append(Body(x - 24, y, 'D'))
+            spawnApple()
+
+        for i in range(len(walls)):
+
+            if snake.body[0].colliderect(walls[i]):
+                pygame.mixer.Sound.play(collision)
+                sys.exit()
+
+        for i in range(len(self.body)):
+
+            if i != 1 and i != 0 and self.body[0].colliderect(self.body[i]):
+                pygame.mixer.Sound.play(collision)
+                sys.exit()
+def spawnApple():
+    x = random.randint(1,18)
+    y = random.randint(1,18)
+    apple.spawn(x, y)
+
+
 snake = Snake('W',10,10)
+spawnApple()
 
 while True:
     for event in pygame.event.get():
@@ -168,5 +235,6 @@ while True:
                 snake.updateDirection('D')
     drawBoard()
     snake.update()
+    snake.checkCollisions()
     pygame.display.update()
     FPS.tick(30)  # sets a framerate limit to 30
