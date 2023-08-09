@@ -123,6 +123,11 @@ class Snake(pygame.sprite.Sprite):
                             self.body[i].direction = self.body[i - 1].direction
                             self.body[i].left = self.body[i - 1].left
                             fixVertPos()
+                        else:
+                            x = int((self.body[i].left - 4) / 32) * 32 + 4
+                            y = int((self.body[i].top - 4) / 32) * 32 + 4
+                            rect = pygame.rect.Rect(x, y, 24, 24)
+                            pygame.draw.rect(Game, snakeColour, rect)
 
                     elif self.body[i].direction == 'D':
 
@@ -130,6 +135,11 @@ class Snake(pygame.sprite.Sprite):
                             self.body[i].direction = self.body[i - 1].direction
                             self.body[i].right = self.body[i - 1].right
                             fixVertPos()
+                        else:
+                            x = int((self.body[i].right - 4) / 32) * 32 + 4
+                            y = int((self.body[i].top - 4) / 32) * 32 + 4
+                            rect = pygame.rect.Rect(x, y, 24, 24)
+                            pygame.draw.rect(Game, snakeColour, rect)
 
                 if self.body[i - 1].direction == 'A' or self.body[i - 1].direction == 'D':
 
@@ -139,6 +149,11 @@ class Snake(pygame.sprite.Sprite):
                             self.body[i].direction = self.body[i - 1].direction
                             self.body[i].bottom = self.body[i - 1].bottom
                             fixHorizPos()
+                        else:
+                            x = int((self.body[i].left - 4) / 32) * 32 + 4
+                            y = int((self.body[i].bottom - 4) / 32) * 32 + 4
+                            rect = pygame.rect.Rect(x, y, 24, 24)
+                            pygame.draw.rect(Game, snakeColour, rect)
 
                     elif self.body[i].direction == 'W':
 
@@ -146,6 +161,11 @@ class Snake(pygame.sprite.Sprite):
                             self.body[i].direction = self.body[i - 1].direction
                             self.body[i].top = self.body[i - 1].top
                             fixHorizPos()
+                        else:
+                            x = int((self.body[i].left - 4) / 32) * 32 + 4
+                            y = int((self.body[i].top - 4) / 32) * 32 + 4
+                            rect = pygame.rect.Rect(x, y, 24, 24)
+                            pygame.draw.rect(Game, snakeColour, rect)
 
             pygame.draw.rect(Game, snakeColour, self.body[i])
 
