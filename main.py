@@ -3,7 +3,7 @@ from pygame.locals import QUIT
 from pygame.locals import *
 from pygame import *
 import random
-
+#comment
 pygame.display.set_caption("            SNEKK")  # caption at the top of the window
 FPS = pygame.time.Clock()
 gridSize = 20
