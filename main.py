@@ -14,7 +14,7 @@ snakeColour = (196, 255, 14)
 bodyWidth = 24
 bodyLength = 24
 
-darkMode = True
+gameState = 1 #0 is the main menu screen
 
 Game = pygame.display.set_mode((32 * gridSize, 32 * gridSize))  # Width and Height of Window
 
@@ -198,6 +198,8 @@ class Snake(pygame.sprite.Sprite):
 
     def checkCollisions(self):
 
+        global gameState
+
         if self.body[0].colliderect(apple.rect):
 
             maxSpeed = 7
@@ -228,26 +230,37 @@ class Snake(pygame.sprite.Sprite):
 
             if snake.body[0].colliderect(walls[i]):
                 pygame.mixer.Sound.play(collision)
-                sys.exit()
+                gameState = 2
 
         for i in range(len(self.body)):
 
             if i != 2 and i != 1 and i != 0 and self.body[0].colliderect(self.body[i]):
                 pygame.mixer.Sound.play(collision)
-                sys.exit()
+                gameState = 2
 
 snake = Snake('W',10,10)
 x = random.randint(1,18)
 y = random.randint(1,18)
 apple.spawn(x, y)
 
+def resetGame():
+    snake = Snake('W', 10, 10)
+    x = random.randint(1, 18)
+    y = random.randint(1, 18)
+    apple.spawn(x, y)
+
+def runGame():
+    drawBoard()
+    snake.update()
+    snake.checkCollisions()
+    pygame.display.update()
 
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN and gameState == 1:
             if event.key == pygame.K_w:
                 snake.updateDirection('W')
             if event.key == pygame.K_a:
@@ -256,8 +269,6 @@ while True:
                 snake.updateDirection('S')
             if event.key == pygame.K_d:
                 snake.updateDirection('D')
-    drawBoard()
-    snake.update()
-    snake.checkCollisions()
-    pygame.display.update()
+    if gameState == 1:
+        runGame()
     FPS.tick(30)  # sets a framerate limit to 30
