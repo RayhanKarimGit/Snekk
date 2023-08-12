@@ -10,13 +10,16 @@ gridSize = 20
 speed = 2
 
 snakeColour = (196, 255, 14)
+buttonColour = (117, 204, 32)
 
 bodyWidth = 24
 bodyLength = 24
 
-gameState = 1 #0 is the main menu screen
+gameState = 0 #0 is the main menu screen
 
 Game = pygame.display.set_mode((32 * gridSize, 32 * gridSize))  # Width and Height of Window
+
+mouseClick = False
 
 pygame.init()
 snakeMove = pygame.mixer.Sound('Sounds/snakeMove.wav')
@@ -42,6 +45,7 @@ frontWall = loadImg('frontwall')
 backWall = loadImg('brickwall')
 sideWall = loadImg('wallblock')
 darkFloor = loadImg('darktile')
+backgroundTile = loadImg('back3')
 
 def drawBoard():
     displayTile(darkCornerTile, 0, 0)  # top left corner
@@ -60,6 +64,29 @@ def drawBoard():
             displayTile(darkFloor, i + 1, j + 1)
 
     apple.draw()
+
+class Button():
+
+    def __init__(self, x, y , width, height, img, borderColour):
+        self.rect = pygame.rect.Rect(x, y, width, height) # the border colour of the button
+        self.fillRect = pygame.rect.Rect(x + 4, y + 4, width - 8, height - 8) #the rectangle of the main button body itself
+        self.borderColour = borderColour
+        self.img = loadImg(img) #main image of the button
+        self.fillColour = (0, 0, 0) #main body of button will be filled in with black
+
+    def draw(self):
+        pygame.draw.rect(Game, self.rect, self.borderColour) #draws the border rectangle
+        pygame.draw.rect(Game, self.fillRect, self.fillColour) #draws the body colour of rectangle
+        Game.blit(self.img, (x + width / 2, y + height / 2)) #places the image in the center of the rectangle
+
+    def click(self, nextState):
+        global gameState
+        global mouseClick
+        x, y = pygame.mouse.get_pos()
+        if self.rect.collidepoint(x, y):
+            self.fillColour = (255, 255, 255)
+            if mouseClick:
+                gameState = nextState
 
 #Objects Class
 class Object(pygame.sprite.Sprite):
@@ -255,6 +282,12 @@ def runGame():
     snake.checkCollisions()
     pygame.display.update()
 
+def mainMenu():
+
+    for i in range(gridSize):
+        for j in range(gridSize):
+            displayTile(backgroundTile, i, j)
+
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -269,6 +302,12 @@ while True:
                 snake.updateDirection('S')
             if event.key == pygame.K_d:
                 snake.updateDirection('D')
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouseClick = True
+        else:
+            mouseClick = False
+    if gameState == 0:
+        mainMenu()
     if gameState == 1:
         runGame()
     FPS.tick(30)  # sets a framerate limit to 30
