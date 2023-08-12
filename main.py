@@ -3,7 +3,7 @@ from pygame.locals import QUIT
 from pygame.locals import *
 from pygame import *
 import random
-#comment
+
 pygame.display.set_caption("            SNEKK")  # caption at the top of the window
 FPS = pygame.time.Clock()
 gridSize = 20
@@ -280,10 +280,8 @@ def runGame():
     drawBoard()
     snake.update()
     snake.checkCollisions()
-    pygame.display.update()
 
 def mainMenu():
-
     for i in range(gridSize):
         for j in range(gridSize):
             displayTile(backgroundTile, i, j)
@@ -310,4 +308,5 @@ while True:
         mainMenu()
     if gameState == 1:
         runGame()
+    pygame.display.update()
     FPS.tick(30)  # sets a framerate limit to 30
