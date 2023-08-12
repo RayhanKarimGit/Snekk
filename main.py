@@ -73,11 +73,13 @@ class Button():
         self.borderColour = borderColour
         self.img = loadImg(img) #main image of the button
         self.fillColour = (0, 0, 0) #main body of button will be filled in with black
+        self.imgRect = self.img.get_rect()
+        self.imgRect.center = (x + width / 2, y + height / 2)
 
     def draw(self):
-        pygame.draw.rect(Game, self.rect, self.borderColour) #draws the border rectangle
-        pygame.draw.rect(Game, self.fillRect, self.fillColour) #draws the body colour of rectangle
-        Game.blit(self.img, (x + width / 2, y + height / 2)) #places the image in the center of the rectangle
+        pygame.draw.rect(Game, self.borderColour,  self.rect) #draws the border rectangle
+        pygame.draw.rect(Game, self.fillColour, self.fillRect) #draws the body colour of rectangle
+        Game.blit(self.img, self.imgRect)
 
     def click(self, nextState):
         global gameState
@@ -87,6 +89,8 @@ class Button():
             self.fillColour = (255, 255, 255)
             if mouseClick:
                 gameState = nextState
+        else:
+            self.fillColour = (0, 0, 0)
 
 #Objects Class
 class Object(pygame.sprite.Sprite):
@@ -285,6 +289,10 @@ def mainMenu():
     for i in range(gridSize):
         for j in range(gridSize):
             displayTile(backgroundTile, i, j)
+
+    playButton = Button(170, 100, 300, 100, 'StartGame', buttonColour)
+    playButton.draw()
+    playButton.click(1)
 
 while True:
     for event in pygame.event.get():
