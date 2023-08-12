@@ -25,6 +25,7 @@ pygame.init()
 snakeMove = pygame.mixer.Sound('Sounds/snakeMove.wav')
 eatApple = pygame.mixer.Sound('Sounds/eatApple.wav')
 collision = pygame.mixer.Sound('Sounds/collision.mp3')
+click = pygame.mixer.Sound('Sounds/buttonClick.mp3')
 
 # these are the walls the snake can collide with
 walls = (pygame.rect.Rect(0, 0, 32 * gridSize, 32), pygame.rect.Rect(32 * gridSize - 32, 0, 32, 32 * gridSize),
@@ -92,6 +93,7 @@ class Button():
         if self.rect.collidepoint(x, y):
             self.fillColour = (255, 255, 255)
             if mouseClick:
+                pygame.mixer.Sound.play(click)
                 gameState = nextState
                 return True  # returns true to also use as a boolean to determine whether the button has been clicked
         else:
@@ -260,7 +262,18 @@ class Snake(pygame.sprite.Sprite):
 
             x = random.randint(1, 18)
             y = random.randint(1, 18)
-            apple.spawn(x, y)
+
+            keepSpawning = True
+
+            while keepSpawning:
+
+                for i in range(len(self.body)):
+                    if not self.body[i].collidepoint((x, y)):
+                        apple.spawn(x, y)
+                        keepSpawning = False
+                    else:
+                        x = randomint(1, 18)
+                        y = randomint(1, 18)
 
         for i in range(len(walls)):
 
@@ -294,6 +307,7 @@ def runGame():
     snake.checkCollisions()
 
 playButton = Button(170, 200, 300, 100, 'StartGame', buttonColour)
+quitButton = Button(170,350, 300, 100, 'quit', buttonColour)
 def mainMenu():
 
     #Fills in background of main menu screen
@@ -304,6 +318,8 @@ def mainMenu():
     Game.blit(title, (210, 50))
     playButton.draw()
     playButton.click(1)
+    quitButton.draw()
+    quitButton.click(10)
 
 menuButton = Button(170, 200, 300, 100, 'MainMenu', buttonColour)
 restartButton = Button(170, 350, 300, 100, 'Restart', buttonColour)
@@ -317,7 +333,9 @@ def deathScreen():
 
     Game.blit(deathMessage, (150, 50))
     menuButton.draw()
-    menuButton.click(0)
+    if menuButton.click(0):
+        resetGame()
+        pygame.time.delay(100) #delays to prevent double clicking the play button back into the game
     restartButton.draw()
     restartButton.click(1)
 
@@ -332,6 +350,7 @@ def pauseScreen():
     Game.blit(pauseTitle, (185,50))
     menuButton.draw()
     if menuButton.click(0):
+        resetGame()
         pygame.time.delay(100) #delays to prevent double clicking the play button back into the game
     resumeButton.draw()
     resumeButton.click(1)
@@ -364,5 +383,7 @@ while True:
         deathScreen()
     if gameState == 3:
         pauseScreen()
+    if gameState == 10:
+        sys.exit()
     pygame.display.update()
     FPS.tick(30)  # sets a framerate limit to 30
