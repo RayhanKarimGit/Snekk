@@ -134,6 +134,7 @@ class Snake(pygame.sprite.Sprite):
         self.nextDirection = direction #the direction for the snake to update to
         self.lastPosX = x * 32 + 4 #last known x coordinate of snake head
         self.lastPosY = y * 32 + 4 #last known y coordinate of snake head
+        self.snakeEyes = (pygame.rect.Rect(x, y, 4, 4), pygame.rect.Rect(x, y, 4, 4)) #The two black snake eyes
 
     def update(self):
 
@@ -226,6 +227,34 @@ class Snake(pygame.sprite.Sprite):
                 self.body[0].direction = self.nextDirection
                 self.body[0].x = self.lastPosX + 32  # corrects y position
                 pygame.mixer.Sound.play(snakeMove)
+
+        #Code for updating the snake eyes' positions
+        if self.body[0].direction == 'W':
+            x = self.body[0].left + 4
+            y = self.body[0].top + 4
+            self.snakeEyes[0].topleft = (x, y)
+            self.snakeEyes[1].topleft = (x + 12, y)
+
+        if self.body[0].direction == 'A':
+            x = self.body[0].left + 4
+            y = self.body[0].top + 4
+            self.snakeEyes[0].topleft = (x, y)
+            self.snakeEyes[1].topleft = (x, y + 12)
+
+        if self.body[0].direction == 'S':
+            x = self.body[0].left + 4
+            y = self.body[0].bottom - 4
+            self.snakeEyes[0].bottomleft = (x, y)
+            self.snakeEyes[1].bottomleft = (x + 12, y)
+
+        if self.body[0].direction == 'D':
+            x = self.body[0].right - 4
+            y = self.body[0].top + 4
+            self.snakeEyes[0].topright = (x, y)
+            self.snakeEyes[1].topright = (x, y + 12)
+
+        pygame.draw.rect(Game, (0, 0, 0), self.snakeEyes[0])
+        pygame.draw.rect(Game, (0, 0, 0), self.snakeEyes[1])
 
 
     # updates the direction for the head of the snake
