@@ -4,14 +4,26 @@ from pygame.locals import *
 from pygame import *
 import random
 
+"""
+Snekk
+
+Created by Rayhan Karim
+Last updated on 2023/08/18
+
+Description: This is a simple snake game in which a snake travelling on an 18 x 18 grid gets longer every time it consumes an apple at a random spawn location.
+This program also contains very simple GUI (Menu screen and a pause screen with buttons)
+
+"""
+
 pygame.display.set_caption("            SNEKK")  # caption at the top of the window
 FPS = pygame.time.Clock()
 gridSize = 20
-speed = 2
+speed = 2 #how many pixels per frame the snake travels at
 
 snakeColour = (196, 255, 14)
 buttonColour = (117, 204, 32)
 
+# each body segment will be 24 x 24 pixels
 bodyWidth = 24
 bodyLength = 24
 
@@ -22,6 +34,7 @@ Game = pygame.display.set_mode((32 * gridSize, 32 * gridSize))  # Width and Heig
 mouseClick = False
 
 pygame.init()
+
 snakeMove = pygame.mixer.Sound('Sounds/snakeMove.wav')
 eatApple = pygame.mixer.Sound('Sounds/eatApple.wav')
 collision = pygame.mixer.Sound('Sounds/collision.mp3')
@@ -90,7 +103,7 @@ class Button():
         global gameState
         global mouseClick
         x, y = pygame.mouse.get_pos()
-        if self.rect.collidepoint(x, y):
+        if self.rect.collidepoint(x, y): #if the mouse pointer collides with the button, fill it with white
             self.fillColour = (255, 255, 255)
             if mouseClick:
                 pygame.mixer.Sound.play(click)
@@ -106,6 +119,7 @@ class Object(pygame.sprite.Sprite):
         self.image = pygame.image.load('assets/'+img)
         self.rect = self.image.get_rect()
 
+    #this method places the object at the center of a grid-based coordinate as long as it is 24 x 24 pixels
     def spawn(self, x, y):
         self.rect.x = x * 32 + 4
         self.rect.y = y * 32 + 4
@@ -113,7 +127,7 @@ class Object(pygame.sprite.Sprite):
     def draw(self):
         Game.blit(self.image, self.rect)
 
-# Body Class
+# Body Class (sub class of the rectangle class but contains a direction variable)
 class Body(pygame.Rect):
 
     def __init__(self,x,y,d):
@@ -152,7 +166,10 @@ class Snake(pygame.sprite.Sprite):
             if self.body[i].direction == 'D':
                 self.body[i].move_ip(self.speed, 0)
 
-            if not i == 0:
+            if not i == 0: #not the head of the snake
+
+                # checks if the body segment before the current segment is in a different direction
+                # If it is in a different direction then it updates the body segment to that direction once it has surpassed the previous body segment
 
                 if self.body[i - 1].direction == 'W' or self.body[i - 1].direction == 'S':
 
@@ -188,6 +205,7 @@ class Snake(pygame.sprite.Sprite):
 
             pygame.draw.rect(Game, snakeColour, self.body[i])
 
+            # fixes the position of the body segments to be aligned with each other (used after the direction of a body segment is updated)
             def fixVertPos():
                 if self.body[i - 1].direction == 'W':
                     self.body[i].top = self.body[i - 1].top + 24
@@ -201,6 +219,7 @@ class Snake(pygame.sprite.Sprite):
                 if self.body[i - 1].direction == 'D':
                     self.body[i].right = self.body[i - 1].right - 24
 
+        #updates the direction of the snake head and aligns it to stay within the grid system of the map
         currentDirection = self.body[0].direction
         y = self.body[0].y
         x = self.body[0].x
@@ -219,13 +238,13 @@ class Snake(pygame.sprite.Sprite):
         if currentDirection == 'S':
             if self.nextDirection != 'W' and self.nextDirection != 'S' and y > self.lastPosY + 32:
                 self.body[0].direction = self.nextDirection
-                self.body[0].y = self.lastPosY + 32  # corrects y positionself.body[0].y = self.lastPosY #corrects y position
+                self.body[0].y = self.lastPosY + 32  # corrects y position
                 pygame.mixer.Sound.play(snakeMove)
 
         if currentDirection == 'D':
             if self.nextDirection != 'A' and self.nextDirection != 'D' and x > self.lastPosX + 32:
                 self.body[0].direction = self.nextDirection
-                self.body[0].x = self.lastPosX + 32  # corrects y position
+                self.body[0].x = self.lastPosX + 32  # corrects x position
                 pygame.mixer.Sound.play(snakeMove)
 
         #Code for updating the snake eyes' positions
@@ -259,13 +278,15 @@ class Snake(pygame.sprite.Sprite):
 
     # updates the direction for the head of the snake
     def updateDirection(self, direction):
-        self.nextDirection = direction
-        self.lastPosX = int((self.body[0].x - 4) / 32) * 32 + 4
-        self.lastPosY = int((self.body[0].y - 4) / 32) * 32 + 4
+        self.nextDirection = direction #holds the value of the next direction until it is ready to be used (until the snake reaches the end of its grid)
+        self.lastPosX = int((self.body[0].x - 4) / 32) * 32 + 4 #returns the grid based x-coordinate of the snake head
+        self.lastPosY = int((self.body[0].y - 4) / 32) * 32 + 4 #returns the grid based y-coordinate of the snake head
 
     def checkCollisions(self):
 
         global gameState
+
+        #once the snake collides with an apple object, it will attach a new body object to the end of its body
 
         if self.body[0].colliderect(apple.rect):
 
@@ -294,12 +315,15 @@ class Snake(pygame.sprite.Sprite):
 
             keepSpawning = True
 
+            # checks if the grid-based coordinate of the apple collides with any of the body objects
+            # If it does collide it must generate new coordinates until those coordinates do not collide to prevent the apple from spawning inside the snake
             while keepSpawning:
 
                 for i in range(len(self.body)):
-                    if not self.body[i].collidepoint((x, y)):
+                    if not self.body[i].collidepoint((x* 32 + 8, y* 32 + 8)):
                         apple.spawn(x, y)
                         keepSpawning = False
+                        break
                     else:
                         x = randomint(1, 18)
                         y = randomint(1, 18)
@@ -309,15 +333,18 @@ class Snake(pygame.sprite.Sprite):
             if snake.body[0].colliderect(walls[i]):
                 pygame.mixer.Sound.play(collision)
                 resetGame()
-                gameState = 2
+                gameState = 2 #Death screen
 
         for i in range(len(self.body)):
+
+            #does not check collision between the head and first two body segments as they collide when the snake turns
 
             if i != 2 and i != 1 and i != 0 and self.body[0].colliderect(self.body[i]):
                 pygame.mixer.Sound.play(collision)
                 resetGame()
-                gameState = 2
+                gameState = 2 #Death screen
 
+#Sets up the snake for when the program is first launched
 snake = Snake('W',10,10)
 x = random.randint(1,18)
 y = random.randint(1,18)
