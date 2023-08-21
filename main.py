@@ -320,13 +320,12 @@ class Snake(pygame.sprite.Sprite):
             while keepSpawning:
 
                 for i in range(len(self.body)):
-                    if not self.body[i].collidepoint((x* 32 + 8, y* 32 + 8)):
-                        apple.spawn(x, y)
-                        keepSpawning = False
-                        break
-                    else:
+                    if self.body[i].collidepoint((x* 32 + 8, y* 32 + 8)):
                         x = random.randint(1, 18)
                         y = random.randint(1, 18)
+                    else:
+                        apple.spawn(x, y)
+                        keepSpawning = False
 
         for i in range(len(walls)):
 
