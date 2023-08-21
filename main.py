@@ -325,8 +325,8 @@ class Snake(pygame.sprite.Sprite):
                         keepSpawning = False
                         break
                     else:
-                        x = randomint(1, 18)
-                        y = randomint(1, 18)
+                        x = random.randint(1, 18)
+                        y = random.randint(1, 18)
 
         for i in range(len(walls)):
 
