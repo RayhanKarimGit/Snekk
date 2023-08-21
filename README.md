@@ -5,7 +5,7 @@ This game was coded in python due to pygame's helpful library with game developm
 
 ## How can I run the game?
 
-Download the zip file from the repository, extract it and start playing!
+Download the zip file from the repository, extract the zip file, launch Snekk.exe and start playing!
 
 ## Credits
 
