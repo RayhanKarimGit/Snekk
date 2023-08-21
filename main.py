@@ -8,7 +8,7 @@ import random
 Snekk
 
 Created by Rayhan Karim
-Last updated on 2023/08/18
+Last updated on 2023/08/21
 
 Description: This is a simple snake game in which a snake travelling on an 18 x 18 grid gets longer every time it consumes an apple at a random spawn location.
 This program also contains very simple GUI (Menu screen and a pause screen with buttons)
